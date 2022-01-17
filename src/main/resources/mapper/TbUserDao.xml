@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emos.wx.db.dao.TbUserDao">
+    <!--判断是否有管理员-->
+    <select id="hasRootUser" resultType="boolean">
+        SELECT IF(COUNT(*), TRUE, FALSE)
+        FROM tb_user
+        WHERE root = 1
+    </select>
+    <!--  根据openId查询用户ID  -->
+    <select id="findIdByOpenId" parameterType="string" resultType="integer">
+        SELECT id
+        FROM tb_user
+        WHERE open_id = #{openId}
+          AND status = 1;
+    </select>
+    <!-- 根据userId，查询用户的权限   -->
+    <select id="findIdByUserPermissions" parameterType="integer" resultType="string">
+        SELECT DISTINCT p.permission_name
+        FROM tb_user AS u
+                 JOIN tb_role AS r ON JSON_CONTAINS(u.role, CAST(r.id AS CHAR))
+                 JOIN tb_permission AS p ON JSON_CONTAINS(u.role, CAST(p.id AS CHAR))
+        WHERE u.id = #{userId}
+          AND u.`status` = 1;
+
+    </select>
+
+    <!--  根据userId查询用户信息  -->
+    <select id="findAllByUserId" parameterType="integer" resultType="com.example.emos.wx.db.pojo.TbUser">
+        SELECT id,
+               open_id,
+               nickname,
+               photo,
+               name,
+               sex,
+               tel,
+               role,
+               root,
+               dept_id,
+               status,
+               create_time
+
+        FROM tb_user
+        WHERE id = #{userId}
+          AND status = 1
+    </select>
+
+    <!--  注册成为超级管理员  -->
+    <insert id="insertRootUser" parameterType="hashmap">
+        INSERT INTO tb_user
+        SET
+        <if test="openId!=null">
+            open_id=#{openId},
+        </if>
+        <if test="nickname!=null">
+            nickname=#{nickname},
+        </if>
+        <if test="photo!=null">
+            photo=#{photo},
+        </if>
+        <if test="name!=null">
+            name=#{name},
+        </if>
+        <if test="sex!=null">
+            sex=#{sex},
+        </if>
+        <if test="tel!=null">
+            tel=#{tel},
+        </if>
+        <if test="email!=null">
+            email=#{email},
+        </if>
+        <if test="hiredate!=null">
+            hiredate=#{hiredate},
+        </if>
+        role=#{role},
+        root=#{root},
+        <if test="deptName!=null">
+            dept_id=(SELECT id FROM tb_dept WHERE dept_name=#{deptName}),
+        </if>
+        status=#{status},
+        create_time=#{createTime}
+    </insert>
+</mapper>

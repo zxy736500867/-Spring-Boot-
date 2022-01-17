@@ -1,0 +1,81 @@
+#配置TomCat
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
+    connection-timeout: 5000ms
+    threads:
+      max: 200
+      min-spare: 30
+  servlet:
+    context-path: /emos-wx-api
+
+#配置Mysql数据库连接
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/emos?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+      username: root
+      password: 123456
+      initial-size: 8
+      max-active: 16
+      min-idle: 8
+      max-wait: 60000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+# 配置Redis数据库连接
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password: 123456
+    jedis:
+      pool:
+        max-active: 1000
+        max-idle: 16
+        max-wait: -1ms
+
+# 配置MongoDB数据源
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: emos
+      authentication-database: admin
+      username: admin
+      password: abc123456
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+#添加MyBatis配置信息
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.example.emos.wx.db.pojo
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+# 设置日志输出
+logging:
+  level:
+    root: info
+    com.example.emos.wx.db.dao: warn
+  pattern:
+    console: "%d{HH:mm:ss}  %-5level  %msg%n"
+
+#配置emos的jwt相关设置
+emos:
+  jwt:
+    secret: abc123456
+    expire: 5
+    cache-expire: 10
+
+wx:
+  app-id: wx6a1daf9a4ed3e6ba
+  app-secret: e0e40da6b593e7a804f8a228a4c50bc7
+
