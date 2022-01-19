@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.emos.wx.db.dao.TbFaceModelDao">
+    <!--    通过userId找到人脸模型字符串，签到时用-->
+    <select id="findFaceModelByUserId" parameterType="integer" resultType="string">
+        SELECT face_model
+        FROM tb_face_model
+        WHERE user_id = #{userId}
+    </select>
+
+    <!--    先上传到人脸信息到数据库，才能打卡-->
+    <insert id="insertAll" parameterType="com.example.emos.wx.db.pojo.TbFaceModel">
+        INSERT INTO tb_face_model
+        SET user_id=#{userId},
+            face_model=#{faceModel}
+    </insert>
+
+    <!--    删除人脸信息，管理员删除离职人员-->
+    <delete id="deleteAll" parameterType="integer">
+        DELETE
+        FROM tb_face_model
+        WHERE user_id = #{userId}
+    </delete>
+
+</mapper>
