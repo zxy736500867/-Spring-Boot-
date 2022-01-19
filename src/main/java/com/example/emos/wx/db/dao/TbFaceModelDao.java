@@ -3,6 +3,9 @@ package com.example.emos.wx.db.dao;
 import com.example.emos.wx.db.pojo.TbFaceModel;
 import org.apache.ibatis.annotations.Mapper;
 
+/**
+ * @author Administrator
+ */
 @Mapper
 public interface TbFaceModelDao {
 
@@ -12,7 +15,7 @@ public interface TbFaceModelDao {
      * @param userId
      * @return 人脸模型字符串
      */
-    public String findFaceModelByUserId(Integer userId);
+    public String findFaceModelStrByUserId(Integer userId);
 
     /**
      * 先上传到人脸信息到数据库，才能打卡
