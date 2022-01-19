@@ -4,11 +4,13 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.example.emos.wx.config.SystemConstants;
 import com.example.emos.wx.db.dao.TbCheckinDao;
+import com.example.emos.wx.db.dao.TbFaceModelDao;
 import com.example.emos.wx.db.dao.TbHolidaysDao;
 import com.example.emos.wx.db.dao.TbWorkdayDao;
 import com.example.emos.wx.service.CheckinService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,15 @@ public class CheckinServiceImpl implements CheckinService {
 
     @Autowired
     private TbCheckinDao checkinDao;
+
+    @Autowired
+    private TbFaceModelDao faceModelDao;
+
+    @Value("${emos.face.createFaceModelUrl}")
+    private String createFaceModelUrl;
+
+    @Value("${emos.face.checkinUrl}")
+    private String checkinUrl;
 
     @Override
     public String validCanCheckIn(Integer userId, String date) {
@@ -81,5 +92,10 @@ public class CheckinServiceImpl implements CheckinService {
                 return isCheck ? "今日已经完成考勤，请勿重复考勤！" : "考勤记录中";
             }
         }
+    }
+
+    @Override
+    public void checkin(HashMap param) {
+
     }
 }

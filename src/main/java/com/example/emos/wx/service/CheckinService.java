@@ -1,5 +1,7 @@
 package com.example.emos.wx.service;
 
+import java.util.HashMap;
+
 /**
  * @Author 张鑫宇
  *  封装检测当天是否可以签到(业务层)
@@ -14,4 +16,10 @@ public interface CheckinService {
      * @return
      */
     public String validCanCheckIn(Integer userId,String date);
+
+    /**
+     * 签到信息
+     * @param param
+     */
+    public void checkin(HashMap param);
 }
