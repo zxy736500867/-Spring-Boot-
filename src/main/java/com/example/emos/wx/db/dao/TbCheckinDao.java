@@ -15,4 +15,10 @@ public interface TbCheckinDao {
      * @return
      */
     public Integer hasCheckin(HashMap param);
+
+    /**
+     * 添加签到信息
+     * @param tbCheckin
+     */
+    public void insertAll(TbCheckin tbCheckin);
 }

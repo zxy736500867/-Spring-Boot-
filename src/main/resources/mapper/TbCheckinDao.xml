@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.emos.wx.db.dao.TbCheckinDao">
-<!--    是否签到-->
+    <!--    是否签到-->
     <select id="hasCheckin" parameterType="hashmap" resultType="integer">
         SELECT id
         FROM tb_checkin
@@ -10,4 +10,31 @@
           AND create_time BETWEEN #{start}
           AND #{end} LIMIT 1;
     </select>
+
+<!--    添加签到信息-->
+    <insert id="insertAll" parameterType="com.example.emos.wx.db.pojo.TbCheckin">
+        INSERT INTO tb_checkin
+        SET user_id=#{userId},
+        <if test="address!=null">
+            address=#{address},
+        </if>
+        <if test="country!=null">
+            country=#{country},
+        </if>
+        <if test="province!=null">
+            province=#{province},
+        </if>
+        <if test="city!=null">
+            city=#{city},
+        </if>
+        <if test="district!=null">
+            district=#{district},
+        </if>
+        <if test="risk!=null">
+            risk=#{risk},
+        </if>
+        status=#{status},
+        date=#{date},
+        create_time=#{createTime}
+    </insert>
 </mapper>
