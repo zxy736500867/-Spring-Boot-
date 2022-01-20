@@ -22,4 +22,11 @@ public interface CheckinService {
      * @param param
      */
     public void checkin(HashMap param);
+
+    /**
+     * 创建人脸模型
+     * @param userId
+     * @param photoPathStr
+     */
+    public void createFaceModel(Integer userId,String photoPathStr);
 }

@@ -89,6 +89,8 @@ emos:
     hr: 2503342142@qq.com
   image-folder:
     G:/emos/image
+  code:
+    HelloWorld
 
 wx:
   app-id: wx6a1daf9a4ed3e6ba

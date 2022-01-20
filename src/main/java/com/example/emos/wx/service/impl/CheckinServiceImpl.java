@@ -10,6 +10,7 @@ import cn.hutool.http.HttpUtil;
 import com.example.emos.wx.config.SystemConstants;
 import com.example.emos.wx.db.dao.*;
 import com.example.emos.wx.db.pojo.TbCheckin;
+import com.example.emos.wx.db.pojo.TbFaceModel;
 import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.service.CheckinService;
 import com.example.emos.wx.task.EmailTask;
@@ -72,6 +73,8 @@ public class CheckinServiceImpl implements CheckinService {
     @Value("${emos.email.hr}")
     private String hrEmail;
 
+    @Value("${emos.code}")
+    private String code;
     /**
      * 验证当天能否签到
      *
@@ -164,6 +167,7 @@ public class CheckinServiceImpl implements CheckinService {
             HttpRequest request = HttpUtil.createPost(checkinUrl);
             //向python程序的网站发送照片，进行对比（请求）
             request.form("photo", FileUtil.file(photoPath), "targetModel", faceModelStr);
+            request.form("code",code);
             //获取到python程序的响应
             HttpResponse response = request.execute();
             if (response.getStatus() != 200) {
@@ -238,6 +242,32 @@ public class CheckinServiceImpl implements CheckinService {
 
         }
 
+
+    }
+
+    /**
+     * 创建人脸模型
+     *
+     * @param userId
+     * @param photoPathStr
+     */
+    @Override
+    public void createFaceModel(Integer userId, String photoPathStr) {
+        //向python程序发送创建人脸模型请求，携带图片信息
+        HttpRequest request = HttpUtil.createPost(createFaceModelUrl);
+        request.form("photo", FileUtil.file(photoPathStr));
+        request.form("code",code);
+        HttpResponse response = request.execute();
+        String body = response.body();
+        if ("无法识别出人脸".equals(body) || "照片中存在多张人脸".equals(body)) {
+            throw new EmosException(body);
+        } else {
+            TbFaceModel faceModelEntity = new TbFaceModel();
+            faceModelEntity.setUserId(userId);
+            faceModelEntity.setFaceModel(body);
+            //对bean进行插入
+            faceModelDao.insertAll(faceModelEntity);
+        }
 
     }
 }
