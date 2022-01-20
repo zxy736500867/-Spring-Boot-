@@ -12,6 +12,7 @@ import com.example.emos.wx.db.dao.*;
 import com.example.emos.wx.db.pojo.TbCheckin;
 import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.service.CheckinService;
+import com.example.emos.wx.task.EmailTask;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +21,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -55,11 +57,20 @@ public class CheckinServiceImpl implements CheckinService {
     @Autowired
     private TbCityDao cityDao;
 
+    @Autowired
+    private EmailTask emailTask;
+
+    @Autowired
+    private TbUserDao userDao;
+
     @Value("${emos.face.createFaceModelUrl}")
     private String createFaceModelUrl;
 
     @Value("${emos.face.checkinUrl}")
     private String checkinUrl;
+
+    @Value("${emos.email.hr}")
+    private String hrEmail;
 
     /**
      * 验证当天能否签到
@@ -165,44 +176,53 @@ public class CheckinServiceImpl implements CheckinService {
             } else if ("False".equals(body)) {
                 throw new EmosException("签到失败，非员工本人签到");
             } else if ("True".equals(body)) {
-                //TODO 重新疫情风险等级
+                //TODO 疫情风险等级
                 // 设置疫情风险等级 risk=1：低风险 2:中风险  3：高风险
                 Integer risk = 1;
                 String city = (String) param.get("city");
                 String district = (String) param.get("district");
+                String address = (String) param.get("address");
+                String country = (String) param.get("country");
+                String province = (String) param.get("province");
 
                 if ((!StrUtil.isBlank(city)) && (!StrUtil.isBlank(district))) {
                     String code = cityDao.findCode(city);
                     try {
-                        String riskUrl="http://m."+code+".bendibao.com/news/yqdengji/?qu="+district;
+                        String riskUrl = "http://m." + code + ".bendibao.com/news/yqdengji/?qu=" + district;
                         //通过jsoup解析
                         Document documentHTML = Jsoup.connect(riskUrl).get();
                         Elements elements = documentHTML.getElementsByClass("list-content");
-                        if (elements.size()>0){
+                        if (elements.size() > 0) {
                             Element element = elements.get(0);
                             String riskText = element.select("p:last-child").text();
-                            if ("高风险".equals(riskText)){
-                                risk=3;
+                            if ("高风险".equals(riskText)) {
+                                risk = 3;
                                 //TODO 发送告警邮件
-                            }
-                            else if ("中风险".equals(riskText)){
-                                risk=2;
-                            }
-                            else {
-                                risk=1;
+                                HashMap<String, String> map = userDao.findNameAndDeptByUserId(userId);
+                                String name = map.get("name");
+                                String deptName = map.get("dept_name");
+                                deptName = (deptName != null ? deptName : "");
+                                //设置邮件内容信息
+                                SimpleMailMessage message = new SimpleMailMessage();
+                                //设置收件人hrEmail
+                                message.setTo(hrEmail);
+                                message.setSubject("员工" + name + "身处高风险疫情地区警告");
+                                message.setText(deptName + "员工" + name + "," + DateUtil.format(new Date(), "yyyy年MM月dd日") + "处于" +
+                                        address + ",属于新冠疫情高风险地区,请及时联系该员工,核实情况！");
+                            } else if ("中风险".equals(riskText)) {
+                                risk = 2;
+                            } else {
+                                risk = 1;
                             }
                         }
-                    }catch (Exception e){
-                        log.error("执行异常",e);
+                    } catch (Exception e) {
+                        log.error("执行异常", e);
                         throw new EmosException("获取地区风险等级失败");
                     }
 
                 }
 
                 //TODO 保存签到记录,时间转换还有点问题
-                String address= (String) param.get("address");
-                String country= (String) param.get("country");
-                String province= (String) param.get("province");
                 TbCheckin checkinEntity = new TbCheckin();
                 checkinEntity.setUserId(userId);
                 checkinEntity.setAddress(address);

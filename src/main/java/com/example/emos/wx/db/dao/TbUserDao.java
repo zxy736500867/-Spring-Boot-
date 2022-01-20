@@ -4,6 +4,7 @@ import com.example.emos.wx.db.pojo.TbUser;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,6 +41,13 @@ public interface TbUserDao {
      * @return TbUser
      */
      public TbUser findAllByUserId(Integer userId);
+
+    /**
+     * 根据用户id查询姓名和部门名
+     * @param userId
+     * @return
+     */
+     public HashMap<String,String> findNameAndDeptByUserId(Integer userId);
 
     /**
      * 注册成为超级管理员
