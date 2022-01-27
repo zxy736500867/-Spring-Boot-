@@ -157,8 +157,10 @@ public class CheckinServiceImpl implements CheckinService {
         }
 
         Integer userId = (Integer) param.get("userId");
+        log.info("userid==="+userId);
         //获取人脸模型字符串
         String faceModelStr = faceModelDao.findFaceModelStrByUserId(userId);
+        log.info("faceModelStr==="+faceModelStr);
         if (faceModelStr == null) {
             throw new EmosException("不存在人脸模型");
         } else {
@@ -253,12 +255,20 @@ public class CheckinServiceImpl implements CheckinService {
      */
     @Override
     public void createFaceModel(Integer userId, String photoPathStr) {
+        log.info("创建人脸模型创建人脸模型创建人脸模型创建人脸模型");
+        log.info("userId===="+userId);
+        log.info("photoPathStr===="+photoPathStr);
+        System.out.println("photoPathStr===="+photoPathStr);
         //向python程序发送创建人脸模型请求，携带图片信息
         HttpRequest request = HttpUtil.createPost(createFaceModelUrl);
         request.form("photo", FileUtil.file(photoPathStr));
         request.form("code",code);
+
         HttpResponse response = request.execute();
+        int status = response.getStatus();
+        log.info("statusstatusstatusstatus==="+status);
         String body = response.body();
+        log.info("bodybodybodybodybody=="+body);
         if ("无法识别出人脸".equals(body) || "照片中存在多张人脸".equals(body)) {
             throw new EmosException(body);
         } else {

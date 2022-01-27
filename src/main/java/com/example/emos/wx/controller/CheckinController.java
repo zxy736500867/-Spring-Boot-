@@ -89,12 +89,13 @@ public class CheckinController {
 
     @PostMapping("/createFaceModel")
     @ApiOperation("创建人脸模型")
-    public R createFaceModel(@RequestParam MultipartFile file,@RequestHeader("token") String token){
-        if (file == null) {
+    public R createFaceModel(@RequestParam MultipartFile photoPathStr,@RequestHeader("token") String token){
+        log.info("创建人脸模型");
+        if (photoPathStr == null) {
             return R.error("没有上传文件");
         }
         Integer userId = jwtUtil.getUserId(token);
-        String fileName = file.getOriginalFilename().toLowerCase();
+        String fileName = photoPathStr.getOriginalFilename().toLowerCase();
         if (!fileName.endsWith(".jpg")) {
             return R.error("请提交JPG格式图片");
         }
@@ -103,7 +104,7 @@ public class CheckinController {
         String photoPath = imageFolder + "/" + fileName;
         try {
             //将照片存储到自定义临时硬盘中
-            file.transferTo(Paths.get(photoPath));
+            photoPathStr.transferTo(Paths.get(photoPath));
             checkinService.createFaceModel(userId, photoPath);
             return R.success("人脸建模成功");
 

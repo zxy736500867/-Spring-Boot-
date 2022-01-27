@@ -65,6 +65,7 @@ public class ShiroConfig {
         filterPathMap.put("/user/register", "anon");
         filterPathMap.put("/user/login", "anon");
         filterPathMap.put("/test/**", "anon");
+        filterPathMap.put("/checkin/**", "anon");
         filterPathMap.put("/**", "oauth2");
         shiroFilter.setFilterChainDefinitionMap(filterPathMap);
         return shiroFilter;
