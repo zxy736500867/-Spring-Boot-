@@ -6,6 +6,7 @@ import com.example.emos.wx.common.util.R;
 import com.example.emos.wx.config.shiro.JwtUtil;
 import com.example.emos.wx.controller.form.CheckinForm;
 import com.example.emos.wx.exception.EmosException;
+import com.example.emos.wx.service.BaiduApiService;
 import com.example.emos.wx.service.CheckinService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +39,9 @@ public class CheckinController {
 
     @Autowired
     private CheckinService checkinService;
+
+    @Autowired
+    private BaiduApiService baiduApiService;
 
     @Value("${emos.image-folder}")
     private String imageFolder;
@@ -105,7 +109,8 @@ public class CheckinController {
         try {
             //将照片存储到自定义临时硬盘中
             photoPathStr.transferTo(Paths.get(photoPath));
-            checkinService.createFaceModel(userId, photoPath);
+//            checkinService.createFaceModel(userId, photoPath);
+            baiduApiService.addUserFace(userId, photoPath);
             return R.success("人脸建模成功");
 
         } catch (IOException e) {

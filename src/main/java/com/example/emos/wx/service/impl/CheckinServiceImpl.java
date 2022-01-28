@@ -256,9 +256,6 @@ public class CheckinServiceImpl implements CheckinService {
     @Override
     public void createFaceModel(Integer userId, String photoPathStr) {
         log.info("创建人脸模型创建人脸模型创建人脸模型创建人脸模型");
-        log.info("userId===="+userId);
-        log.info("photoPathStr===="+photoPathStr);
-        System.out.println("photoPathStr===="+photoPathStr);
         //向python程序发送创建人脸模型请求，携带图片信息
         HttpRequest request = HttpUtil.createPost(createFaceModelUrl);
         request.form("photo", FileUtil.file(photoPathStr));

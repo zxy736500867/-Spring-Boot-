@@ -95,3 +95,7 @@ emos:
 wx:
   app-id: wx6a1daf9a4ed3e6ba
   app-secret: e0e40da6b593e7a804f8a228a4c50bc7
+
+baidu:
+  api-key: O9wmKrVFG0ezSUUex0YiZWyj
+  secret-key: 1penHcuq6iA350tQD2LonrnjLSdE2XiA
