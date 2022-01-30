@@ -1,6 +1,7 @@
 package com.example.emos.wx.service;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author 张鑫宇
@@ -18,15 +19,16 @@ public interface CheckinService {
     public String validCanCheckIn(Integer userId,String date);
 
     /**
-     * 签到信息
+     * 创建人脸模型
+     * @param userId  用户id
+     * @param filePath    上传图片的路径
+     */
+    public void createFaceModel(Integer userId, String filePath);
+
+    /**
+     * 签到
      * @param param
      */
     public void checkin(HashMap param);
 
-    /**
-     * 创建人脸模型
-     * @param userId
-     * @param photoPathStr
-     */
-    public void createFaceModel(Integer userId,String photoPathStr);
 }

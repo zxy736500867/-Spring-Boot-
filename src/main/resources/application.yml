@@ -89,8 +89,6 @@ emos:
     hr: 2503342142@qq.com
   image-folder:
     G:/emos/image
-  code:
-    HelloWorld
 
 wx:
   app-id: wx6a1daf9a4ed3e6ba
@@ -99,3 +97,6 @@ wx:
 baidu:
   api-key: O9wmKrVFG0ezSUUex0YiZWyj
   secret-key: 1penHcuq6iA350tQD2LonrnjLSdE2XiA
+  authHost: https://aip.baidubce.com/oauth/2.0/token?
+  addUrl: https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add
+  searchUrl: https://aip.baidubce.com/rest/2.0/face/v3/search

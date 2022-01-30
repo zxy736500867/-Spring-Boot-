@@ -1,8 +1,6 @@
 package com.example.emos.wx.service.impl;
 
-
-import cn.hutool.core.codec.Base64Decoder;
-import com.example.emos.wx.db.dao.TbFaceModelDao;
+import com.example.emos.wx.db.dao.*;
 import com.example.emos.wx.db.pojo.TbFaceModel;
 import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.service.BaiduApiService;
@@ -10,7 +8,6 @@ import com.example.emos.wx.utils.BaseUtil;
 import com.example.emos.wx.utils.GsonUtils;
 import com.example.emos.wx.utils.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Base64Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -20,9 +17,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Program: emos-wx-api
@@ -35,29 +30,35 @@ import java.util.Map;
 @Slf4j
 public class BaiduApiServiceImpl implements BaiduApiService {
 
+    @Autowired
+    private TbFaceModelDao faceModelDao;
+
     @Value("${baidu.api-key}")
     private String apiKey;
 
     @Value("${baidu.secret-key}")
     private String securetKey;
 
-    @Autowired
-    private TbFaceModelDao faceModelDao;
+    @Value("${baidu.authHost}")
+    private String authHost;
 
-    /**
-     * 获取token地址
-     */
-    String authHost = "https://aip.baidubce.com/oauth/2.0/token?";
+    @Value("${baidu.addUrl}")
+    private String addUrl;
+
+    @Value("${baidu.searchUrl}")
+    private String searchUrl;
+
 
     /**
      * 获取API访问token
-     * @param apiKey 百度云官网获取的 API Key
+     *
+     * @param apiKey     百度云官网获取的 API Key
      * @param securetKey 百度云官网获取的 Securet Key
      * @return
      */
     @Override
     public final String getBaiduToken(String apiKey, String securetKey) {
-        String url=authHost+ "grant_type=client_credentials"
+        String url = authHost + "grant_type=client_credentials"
                 + "&client_id=" + apiKey
                 + "&client_secret=" + securetKey;
         try {
@@ -85,7 +86,7 @@ public class BaiduApiServiceImpl implements BaiduApiService {
             System.err.println("result:" + result);
             JSONObject jsonObject = new JSONObject(result);
             String access_token = jsonObject.getString("access_token");
-            log.info("access_token==="+access_token);
+            log.info("access_token===" + access_token);
             return access_token;
         } catch (Exception e) {
             System.err.printf("获取token失败！");
@@ -94,48 +95,125 @@ public class BaiduApiServiceImpl implements BaiduApiService {
         return null;
     }
 
+    /**
+     * 向自己创建的百度库中添加人脸注册
+     *
+     * @param userId   用户id
+     * @param filePath 上传图片的路径
+     * @return
+     */
     @Override
-    public void addUserFace(Integer userId, String photoPathStr) {
+    public void addUserFace(Integer userId, String filePath) {
         log.info("向百度api发送创建人脸模型请求，携带图片信息");
-        String baiduToken = getBaiduToken(apiKey, securetKey);
+        // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
+        String accessToken = getBaiduToken(apiKey, securetKey);
         // 请求url
-        String url = "https://aip.baidubce.com/rest/2.0/face/v3/faceset/user/add";
+        String url = addUrl;
 
-        String image = BaseUtil.encryptToBase64(photoPathStr);
+        // 照片转义成base64编码
+        String image = BaseUtil.encryptToBase64(filePath);
+
+        // 封装请求体的数据--》map
+        Map<String, Object> map = new HashMap<>();
+        map.put("image", image);
+        map.put("group_id", "1");
+        map.put("user_id", userId.toString());
+        map.put("user_info", "测试用户");
+        map.put("liveness_control", "NORMAL");
+        map.put("image_type", "BASE64");
+        map.put("quality_control", "NORMAL");
+        String param = GsonUtils.toJson(map);
+
+        String response = null;
+        try {
+            response = HttpUtil.post(url, accessToken, "application/json", param);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (response == null) {
+            return;
+        }
+        String error_msg = (String) new JSONObject(response).get("error_msg");
+        if ("pic not has face".equals(error_msg)) {
+            throw new EmosException("pic未识别出人脸，请重试", 500);
+        } else if ("liveness check fail".equals(error_msg)) {
+            throw new EmosException("活体检测识别失败，请勿使用图片上传人脸信息", 500);
+        } else if ("face is fuzzy".equals(error_msg)) {
+            throw new EmosException("人脸模型模糊，请重试", 500);
+        } else {
+            Map mapJson = new JSONObject(response).getJSONObject("result").toMap();
+            String face_token = (String) mapJson.get("face_token");
+
+            TbFaceModel faceModelEntity = new TbFaceModel();
+            faceModelEntity.setUserId(userId);
+            faceModelEntity.setFaceModel(face_token);
+            //对bean进行插入
+            faceModelDao.insertAll(faceModelEntity);
+        }
+    }
+
+    /**
+     * 向自己创建的百度库中搜索对比存在的人脸
+     *
+     * @param userId
+     * @param filePath
+     * @return
+     */
+    @Override
+    public Map<String, Object> searchFace(Integer userId, String filePath) {
+        log.info("向百度api发送对比人脸模型请求，携带图片信息");
+        String accessToken= getBaiduToken(apiKey, securetKey);
+
+        // 请求url
+        String url = searchUrl;
+        String image = BaseUtil.encryptToBase64(filePath);
 
         try {
-
             Map<String, Object> map = new HashMap<>();
-            map.put("image",image);
-            map.put("group_id", "1");
-            map.put("user_id", userId.toString());
-            map.put("user_info", "测试用户");
+            map.put("image", image);
             map.put("liveness_control", "NORMAL");
+            map.put("group_id_list", "0,1,2,3,4,5,6,7,8,9");
+            map.put("user_id", userId.toString());
             map.put("image_type", "BASE64");
             map.put("quality_control", "NORMAL");
+            map.put("max_user_num", 1);
 
             String param = GsonUtils.toJson(map);
 
             // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
-            String accessToken = baiduToken;
 
             String response = HttpUtil.post(url, accessToken, "application/json", param);
             log.info(response);
 
-            Map mapJson= new JSONObject(response).getJSONObject("result").toMap();
-            String face_token = (String) mapJson.get("face_token");
-            if (face_token==null) {
-                throw new EmosException("人脸注册失败");
-            } else {
-                TbFaceModel faceModelEntity = new TbFaceModel();
-                faceModelEntity.setUserId(userId);
-                faceModelEntity.setFaceModel(face_token);
-                //对bean进行插入
-                faceModelDao.insertAll(faceModelEntity);
-            }
+            //一对{}，一个JSONObject对象
+            JSONObject jsonResponse = new JSONObject(response);
+            Integer error_code = (Integer) jsonResponse.get("error_code");
+            String error_msg = (String) jsonResponse.get("error_msg");
 
+            String face_token = jsonResponse.getJSONObject("result").getString("face_token");
+            List user_list = jsonResponse.getJSONObject("result").getJSONArray("user_list").toList();
+
+            String group_id = (String) ((HashMap) user_list.get(0)).get("group_id");
+            String user_id = (String) ((HashMap) user_list.get(0)).get("user_id");
+            String user_info = (String) ((HashMap) user_list.get(0)).get("user_info");
+            Double score = (Double) ((HashMap) user_list.get(0)).get("score");
+
+
+            HashMap<String, Object> responseMap = new HashMap<>(7);
+            responseMap.put("error_code", error_code);
+            responseMap.put("error_msg", error_msg);
+            responseMap.put("face_token", face_token);
+            responseMap.put("group_id", group_id);
+            responseMap.put("user_id", user_id);
+            responseMap.put("user_info", user_info);
+            responseMap.put("score", score);
+
+            return responseMap;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
+
     }
+
 }

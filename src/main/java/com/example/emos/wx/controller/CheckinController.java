@@ -50,19 +50,18 @@ public class CheckinController {
     @ApiOperation("查看用户当日是否签到")
     public R validCanCheckIn(@RequestHeader("token") String token) {
         Integer userId = jwtUtil.getUserId(token);
-
         String result = checkinService.validCanCheckIn(userId, DateUtil.today());
         return R.success(result);
     }
 
     @PostMapping("/checkin")
     @ApiOperation("签到")
-    public R checkin(@Valid CheckinForm form, @RequestParam("photo") MultipartFile file, @RequestHeader("token") String token) {
-        if (file == null) {
+    public R checkin(@Valid CheckinForm form, @RequestParam("photo") MultipartFile filePath, @RequestHeader("token") String token) {
+        if (filePath == null) {
             return R.error("没有上传文件");
         }
         Integer userId = jwtUtil.getUserId(token);
-        String fileName = file.getOriginalFilename().toLowerCase();
+        String fileName = filePath.getOriginalFilename().toLowerCase();
         if (!fileName.endsWith(".jpg")) {
             return R.error("请提交JPG格式图片");
         }
@@ -71,7 +70,7 @@ public class CheckinController {
         String photoPath = imageFolder + "/" + fileName;
         try {
             //将照片存储到自定义临时硬盘中
-            file.transferTo(Paths.get(photoPath));
+            filePath.transferTo(Paths.get(photoPath));
             HashMap param = new HashMap();
             param.put("userId", userId);
             param.put("photoPath", photoPath);
@@ -93,13 +92,13 @@ public class CheckinController {
 
     @PostMapping("/createFaceModel")
     @ApiOperation("创建人脸模型")
-    public R createFaceModel(@RequestParam MultipartFile photoPathStr,@RequestHeader("token") String token){
+    public R createFaceModel(@RequestParam("photo") MultipartFile filePath,@RequestHeader("token") String token){
         log.info("创建人脸模型");
-        if (photoPathStr == null) {
+        if (filePath == null) {
             return R.error("没有上传文件");
         }
         Integer userId = jwtUtil.getUserId(token);
-        String fileName = photoPathStr.getOriginalFilename().toLowerCase();
+        String fileName = filePath.getOriginalFilename().toLowerCase();
         if (!fileName.endsWith(".jpg")) {
             return R.error("请提交JPG格式图片");
         }
@@ -108,8 +107,7 @@ public class CheckinController {
         String photoPath = imageFolder + "/" + fileName;
         try {
             //将照片存储到自定义临时硬盘中
-            photoPathStr.transferTo(Paths.get(photoPath));
-//            checkinService.createFaceModel(userId, photoPath);
+            filePath.transferTo(Paths.get(photoPath));
             baiduApiService.addUserFace(userId, photoPath);
             return R.success("人脸建模成功");
 

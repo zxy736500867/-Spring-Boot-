@@ -6,15 +6,19 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import com.example.emos.wx.config.SystemConstants;
 import com.example.emos.wx.db.dao.*;
 import com.example.emos.wx.db.pojo.TbCheckin;
 import com.example.emos.wx.db.pojo.TbFaceModel;
 import com.example.emos.wx.exception.EmosException;
+import com.example.emos.wx.service.BaiduApiService;
 import com.example.emos.wx.service.CheckinService;
 import com.example.emos.wx.task.EmailTask;
+import com.example.emos.wx.utils.BaseUtil;
+import com.example.emos.wx.utils.GsonUtils;
+import com.example.emos.wx.utils.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,8 +29,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Program: emos-wx-api
@@ -64,6 +74,9 @@ public class CheckinServiceImpl implements CheckinService {
     @Autowired
     private TbUserDao userDao;
 
+    @Autowired
+    private BaiduApiService baiduApiService;
+
     @Value("${emos.face.createFaceModelUrl}")
     private String createFaceModelUrl;
 
@@ -73,8 +86,9 @@ public class CheckinServiceImpl implements CheckinService {
     @Value("${emos.email.hr}")
     private String hrEmail;
 
-    @Value("${emos.code}")
-    private String code;
+
+
+
     /**
      * 验证当天能否签到
      *
@@ -128,6 +142,16 @@ public class CheckinServiceImpl implements CheckinService {
     }
 
     /**
+     *  创建人脸模型
+     * @param userId  用户id
+     * @param filePath    上传图片的路径
+     */
+    @Override
+    public void createFaceModel(Integer userId, String filePath) {
+        baiduApiService.addUserFace(userId, filePath);
+    }
+
+    /**
      * 执行签到
      *
      * @param param
@@ -136,7 +160,7 @@ public class CheckinServiceImpl implements CheckinService {
     public void checkin(HashMap param) {
 
         //定义当天上班的状态：正常，迟到，旷工
-        Byte status;
+        Byte status = 1;
 
         //当前打卡时间
         Date nowTime = DateUtil.date();
@@ -152,36 +176,32 @@ public class CheckinServiceImpl implements CheckinService {
         //当天上班的状态：迟到 status=2
         else if (nowTime.compareTo(attendanceTime) > 0 && nowTime.compareTo(attendanceEndTime) < 0) {
             status = 2;
-        } else {
-            status = null;
         }
-
         Integer userId = (Integer) param.get("userId");
-        log.info("userid==="+userId);
+        log.info("userid===" + userId);
         //获取人脸模型字符串
         String faceModelStr = faceModelDao.findFaceModelStrByUserId(userId);
-        log.info("faceModelStr==="+faceModelStr);
+        log.info("faceModelStr===" + faceModelStr);
         if (faceModelStr == null) {
             throw new EmosException("不存在人脸模型");
         } else {
+            //TODO 有点问题：异常处理和responseMap封装，最后再看
             //获取到考勤拍照时要上传的照片路径
             String photoPath = (String) param.get("photoPath");
-            HttpRequest request = HttpUtil.createPost(checkinUrl);
-            //向python程序的网站发送照片，进行对比（请求）
-            request.form("photo", FileUtil.file(photoPath), "targetModel", faceModelStr);
-            request.form("code",code);
-            //获取到python程序的响应
-            HttpResponse response = request.execute();
-            if (response.getStatus() != 200) {
+            Map responseMap = baiduApiService.searchFace(userId, photoPath);
+
+            if (responseMap == null || (Integer) responseMap.get("error_code") != 0) {
                 throw new EmosException("人脸识别服务异常！");
             }
             //对响应体的数据进行分解
-            String body = response.body();
-            if ("无法识别出人脸".equals(body) || "照片中存在多张人脸".equals(body)) {
-                throw new EmosException(body);
-            } else if ("False".equals(body)) {
-                throw new EmosException("签到失败，非员工本人签到");
-            } else if ("True".equals(body)) {
+            String error_msg = (String) responseMap.get("error_msg");
+            if ("match user is not found".equals(error_msg) || "照片中存在多张人脸".equals(error_msg)) {
+                throw new EmosException("人脸识别不匹配！");
+            } else if ("face is fuzzy".equals(error_msg)) {
+                throw new EmosException("人脸是模糊！");
+            } else if ("liveness check fail".equals(error_msg)) {
+                throw new EmosException("活性检查失败！");
+            } else if ("SUCCESS".equals(error_msg)) {
                 //TODO 疫情风险等级
                 // 设置疫情风险等级 risk=1：低风险 2:中风险  3：高风险
                 Integer risk = 1;
@@ -247,34 +267,5 @@ public class CheckinServiceImpl implements CheckinService {
 
     }
 
-    /**
-     * 创建人脸模型
-     *
-     * @param userId
-     * @param photoPathStr
-     */
-    @Override
-    public void createFaceModel(Integer userId, String photoPathStr) {
-        log.info("创建人脸模型创建人脸模型创建人脸模型创建人脸模型");
-        //向python程序发送创建人脸模型请求，携带图片信息
-        HttpRequest request = HttpUtil.createPost(createFaceModelUrl);
-        request.form("photo", FileUtil.file(photoPathStr));
-        request.form("code",code);
 
-        HttpResponse response = request.execute();
-        int status = response.getStatus();
-        log.info("statusstatusstatusstatus==="+status);
-        String body = response.body();
-        log.info("bodybodybodybodybody=="+body);
-        if ("无法识别出人脸".equals(body) || "照片中存在多张人脸".equals(body)) {
-            throw new EmosException(body);
-        } else {
-            TbFaceModel faceModelEntity = new TbFaceModel();
-            faceModelEntity.setUserId(userId);
-            faceModelEntity.setFaceModel(body);
-            //对bean进行插入
-            faceModelDao.insertAll(faceModelEntity);
-        }
-
-    }
 }
