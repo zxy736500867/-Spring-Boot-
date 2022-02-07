@@ -35,7 +35,7 @@ public class EmailTask implements Serializable {
     public void sendAsync(SimpleMailMessage message) {
         message.setFrom(systemSender);
         //防止被163捕获为垃圾邮件，需要将邮件抄送给自己，验证不为垃圾邮件
-        message.setCc(systemSender);
+        //message.setCc(systemSender);
         javaMailSender.send(message);
     }
 }

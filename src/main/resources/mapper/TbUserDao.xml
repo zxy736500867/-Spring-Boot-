@@ -47,7 +47,8 @@
 
     <!--    根据用户id查询姓名和部门名称-->
     <select id="findNameAndDeptByUserId" parameterType="integer" resultType="hashmap">
-        SELECT
+        SELECT u.name,
+               d.dept_name
         FROM tb_user AS u
                  LEFT JOIN tb_dept AS d ON u.dept_id = d.id
         WHERE u.id = #{userId}

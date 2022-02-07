@@ -87,8 +87,6 @@ public class CheckinServiceImpl implements CheckinService {
     private String hrEmail;
 
 
-
-
     /**
      * 验证当天能否签到
      *
@@ -142,9 +140,10 @@ public class CheckinServiceImpl implements CheckinService {
     }
 
     /**
-     *  创建人脸模型
-     * @param userId  用户id
-     * @param filePath    上传图片的路径
+     * 创建人脸模型
+     *
+     * @param userId   用户id
+     * @param filePath 上传图片的路径
      */
     @Override
     public void createFaceModel(Integer userId, String filePath) {
@@ -221,6 +220,7 @@ public class CheckinServiceImpl implements CheckinService {
                         if (elements.size() > 0) {
                             Element element = elements.get(0);
                             String riskText = element.select("p:last-child").text();
+//                            riskText="高风险";
                             if ("高风险".equals(riskText)) {
                                 risk = 3;
                                 //TODO 发送告警邮件
@@ -235,6 +235,7 @@ public class CheckinServiceImpl implements CheckinService {
                                 message.setSubject("员工" + name + "身处高风险疫情地区警告");
                                 message.setText(deptName + "员工" + name + "," + DateUtil.format(new Date(), "yyyy年MM月dd日") + "处于" +
                                         address + ",属于新冠疫情高风险地区,请及时联系该员工,核实情况！");
+                                emailTask.sendAsync(message);
                             } else if ("中风险".equals(riskText)) {
                                 risk = 2;
                             } else {

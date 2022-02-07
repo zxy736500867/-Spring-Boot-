@@ -55,8 +55,8 @@ spring:
 # 配置SMTP服务器信息
   mail:
     default-encoding: utf-8
-    host: smtp.163.com
-    username: zxy736500867@163.com
+    host: smtp.aliyun.com
+    username: zxy736500867@aliyun.com
     password: zxy19971111.0.
 
 #添加MyBatis配置信息
@@ -85,8 +85,8 @@ emos:
     createFaceModelUrl: http://192.168.43.90:3000/create_face_model
     checkinUrl: http://192.168.43.90:3000/checkin
   email:
-    system: 736500867@qq.com
-    hr: 2503342142@qq.com
+    system: zxy736500867@aliyun.com
+    hr: 736500867@qq.com
   image-folder:
     G:/emos/image
 
