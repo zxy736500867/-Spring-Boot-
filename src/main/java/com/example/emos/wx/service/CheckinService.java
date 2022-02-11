@@ -1,5 +1,6 @@
 package com.example.emos.wx.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,5 +31,26 @@ public interface CheckinService {
      * @param param
      */
     public void checkin(HashMap param);
+
+    /**
+     * 查询当天签到情况
+     * @param userId
+     * @return
+     */
+    public HashMap findTodayCheckinByUserId(Integer userId);
+
+    /**
+     * 查询总考勤天数
+     * @param userId
+     * @return
+     */
+    public Long findCheckinByUserId(Integer userId);
+
+    /**
+     * 查询本周考勤情况
+     * @param param
+     * @return
+     */
+    public ArrayList<HashMap> findWeekCheckinByUserId(HashMap param);
 
 }

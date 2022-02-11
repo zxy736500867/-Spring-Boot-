@@ -8,4 +8,12 @@
         WHERE date = CURRENT_DATE LIMIT 1;
     </select>
 
+    <!--    查询本周有没有特殊的工作日-->
+    <select id="findWorkdaysInRange" parameterType="hashmap" resultType="string">
+        SELECT date
+        FROM tb_workday
+        WHERE date BETWEEN #{startDate}
+          AND #{endDate}
+    </select>
+
 </mapper>

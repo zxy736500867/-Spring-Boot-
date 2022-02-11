@@ -1,5 +1,7 @@
 package com.example.emos.wx.service.impl;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateRange;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
@@ -33,10 +35,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Program: emos-wx-api
@@ -266,6 +265,81 @@ public class CheckinServiceImpl implements CheckinService {
         }
 
 
+    }
+
+    /**
+     * 查询当天签到情况
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public HashMap findTodayCheckinByUserId(Integer userId) {
+        HashMap map = checkinDao.findTodayCheckinByUserId(userId);
+        return map;
+    }
+
+    /**
+     * 查询总考勤天数
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public Long findCheckinByUserId(Integer userId) {
+        Long days = checkinDao.findCheckinByUserId(userId);
+        return days;
+    }
+
+    /**
+     * 查询本周考勤情况
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public ArrayList<HashMap> findWeekCheckinByUserId(HashMap param) {
+        //获取到本周的考勤情况：包括特殊节假日和特殊工作日
+        ArrayList<HashMap> checkinWeekList = checkinDao.findWeekCheckinByUserId(param);
+        ArrayList<String> holidaysList = holidaysDao.findHolidaysInRange(param);
+        ArrayList<String> workdayList = workdayDao.findWorkdaysInRange(param);
+
+        //创建一周考勤的对象
+        DateTime startDate = DateUtil.parseDate(param.get("startDate").toString());
+        DateTime endDate = DateUtil.parseDate(param.get("endDate").toString());
+        DateRange range = DateUtil.range(startDate, endDate, DateField.DAY_OF_MONTH);
+
+        //对本周考勤对象做循环判断是否是工作日还是节假日
+        range.forEach(item -> {
+            //type:判断是否是工作日，默认是的
+            String type = "工作日";
+            // status: 当天考勤记录
+            String status = "";
+            String date = item.toString("yyyy-MM-dd");
+            if (item.isWeekend()) {
+                type = "节假日";
+            }
+            if (holidaysList != null && holidaysList.contains(date)) {
+                type = "节假日";
+            } else if (workdayList != null && workdayList.contains(date)) {
+                type = "工作日";
+            }
+
+            // 对当天考勤记录的状态进行判断： status: 当天考勤记录
+            if (type.equals("工作日") && DateUtil.compare(item, DateUtil.date()) <= 0) {
+                status = "缺勤";
+                for (HashMap<String, String> map : checkinWeekList) {
+                    if (map.containsValue(date)) {
+                        status = map.get("status");
+                        break;
+                    }
+                }
+            }
+
+        });
+
+
+        return null;
     }
 
 
