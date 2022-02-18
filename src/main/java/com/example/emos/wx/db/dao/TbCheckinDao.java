@@ -37,7 +37,7 @@ public interface TbCheckinDao {
      * @param param
      * @return
      */
-    public ArrayList<HashMap> findWeekCheckinByUserId(HashMap param);
+    public ArrayList<HashMap> findWeekCheckinByParam(HashMap param);
 
     /**
      * 添加签到信息

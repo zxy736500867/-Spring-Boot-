@@ -35,6 +35,13 @@ public interface UserService {
      */
     public TbUser findAllByUserId(Integer userId);
 
+    /**
+     * 查询用户的入职日期
+     * @param userId
+     * @return
+     */
+    public String findHiredateByUserId(Integer userId);
+
 
     /**
      * 登录查询

@@ -1,13 +1,16 @@
 package com.example.emos.wx.controller;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import com.example.emos.wx.common.util.R;
+import com.example.emos.wx.config.SystemConstants;
 import com.example.emos.wx.config.shiro.JwtUtil;
 import com.example.emos.wx.controller.form.CheckinForm;
 import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.service.BaiduApiService;
 import com.example.emos.wx.service.CheckinService;
+import com.example.emos.wx.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -42,6 +46,12 @@ public class CheckinController {
 
     @Autowired
     private BaiduApiService baiduApiService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private SystemConstants constants;
 
     @Value("${emos.image-folder}")
     private String imageFolder;
@@ -92,7 +102,7 @@ public class CheckinController {
 
     @PostMapping("/createFaceModel")
     @ApiOperation("创建人脸模型")
-    public R createFaceModel(@RequestParam("photo") MultipartFile filePath,@RequestHeader("token") String token){
+    public R createFaceModel(@RequestParam("photo") MultipartFile filePath, @RequestHeader("token") String token) {
         log.info("创建人脸模型");
         if (filePath == null) {
             return R.error("没有上传文件");
@@ -120,4 +130,37 @@ public class CheckinController {
 
     }
 
+    @GetMapping("/searchTodayCheckin")
+    @ApiOperation("查询用户当日签到数据")
+    public R searchTodayCheckin(@RequestHeader("token") String token) {
+        Integer userId = jwtUtil.getUserId(token);
+        //查询当天签到情况
+        HashMap map = checkinService.findTodayCheckinByUserId(userId);
+        //上班时间
+        map.put("attendanceTime", constants.attendanceTime);
+        //下班考勤截止时间
+        map.put("closingEndTime", constants.closingEndTime);
+        //查询总考勤天数
+        Long days = checkinService.findCheckinByUserId(userId);
+        map.put("checkinDays", days);
+
+        //查询用户的入职日期转化为对象（string=》日期对象）
+        DateTime hiredate = DateUtil.parse(userService.findHiredateByUserId(userId));
+        //本周开始日期对象
+        DateTime startDate = DateUtil.beginOfWeek(DateUtil.date());
+        if (startDate.isBefore(hiredate)) {
+            startDate = hiredate;
+        }
+        //本周结束日期对象
+        DateTime endDate = DateUtil.endOfWeek(DateUtil.date());
+        HashMap param = new HashMap();
+        param.put("startDate", startDate.toString());
+        param.put("endDate", endDate.toString());
+        param.put("userId", userId);
+        ArrayList<HashMap> list = checkinService.findWeekCheckinByParam(param);
+        map.put("weekCheckin", list);
+        return R.success().put("result", map);
+
+
+    }
 }

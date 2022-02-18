@@ -12,3 +12,9 @@ AppSecret(小程序密钥):  e0e40da6b593e7a804f8a228a4c50bc7
 AppID：25562211
 API Key：O9wmKrVFG0ezSUUex0YiZWyj
 Secret Key：1penHcuq6iA350tQD2LonrnjLSdE2XiA
+
+4.腾讯云TRTC服务
+
+SDKAppID：1400635589
+
+密钥：c2c0f15e4d6ed94cdb5e3f6f952a37f7caaa2b1b5f586b8822ac18f38248a5eb

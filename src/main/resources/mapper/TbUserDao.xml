@@ -55,6 +55,14 @@
           AND u.status = 1
     </select>
 
+<!--    查询用户的入职日期-->
+    <select id="findHiredateByUserId" parameterType="integer" resultType="string">
+        SELECT hiredate
+        FROM tb_user
+        WHERE id = #{userId}
+          AND status = 1
+    </select>
+
     <!--  注册成为超级管理员  -->
     <insert id="insertRootUser" parameterType="hashmap">
         INSERT INTO tb_user

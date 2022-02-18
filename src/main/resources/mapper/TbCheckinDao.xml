@@ -18,13 +18,13 @@
                d.dept_name                          AS deptName,
                ck.address,
                CASE
-                   WHEN ck.status = 1 THEN ''
-                   WHEN ck.status = 2 THEN ''
+                   WHEN ck.status = 1 THEN '正常'
+                   WHEN ck.status = 2 THEN '迟到'
                    END                              AS status,
                CASE
-                   WHEN ck.risk = 1 THEN ''
-                   WHEN ck.risk = 1 THEN ''
-                   WHEN ck.risk = 1 THEN ''
+                   WHEN ck.risk = 1 THEN '低风险'
+                   WHEN ck.risk = 2 THEN '中风险'
+                   WHEN ck.risk = 3 THEN '高风险'
                    END                              AS risk,
                DATE_FORMAT(ck.create_time, "%H:%i") AS checkinTime,
                ck.date
@@ -37,14 +37,14 @@
     </select>
 
     <!--    查询总考勤天数-->
-    <select id="findCheckinByUserId" parameterType="integer" resultType="Long">
+    <select id="findCheckinByUserId" parameterType="integer" resultType="long">
         SELECT COUNT(*) AS count
         FROM tb_checkin
         WHERE user_id=#{userId}
     </select>
 
     <!--    查询本周考勤情况-->
-    <select id="findWeekCheckinByUserId" parameterType="hashmap" resultType="hashmap">
+    <select id="findWeekCheckinByParam" parameterType="hashmap" resultType="hashmap">
         SELECT CAST(date AS CHAR) AS date,
         IF(status=1,"正常","迟到") AS status
         FROM tb_checkin

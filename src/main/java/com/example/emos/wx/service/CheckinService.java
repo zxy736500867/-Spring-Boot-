@@ -51,6 +51,6 @@ public interface CheckinService {
      * @param param
      * @return
      */
-    public ArrayList<HashMap> findWeekCheckinByUserId(HashMap param);
+    public ArrayList<HashMap> findWeekCheckinByParam(HashMap param);
 
 }

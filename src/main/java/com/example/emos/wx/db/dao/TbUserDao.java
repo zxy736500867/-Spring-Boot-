@@ -50,6 +50,13 @@ public interface TbUserDao {
      public HashMap<String,String> findNameAndDeptByUserId(Integer userId);
 
     /**
+     * 查询用户的入职日期
+     * @param userId
+     * @return
+     */
+     public String findHiredateByUserId(Integer userId);
+
+    /**
      * 注册成为超级管理员
      * @param param 插入时所需的数据
      * @return 大于0，就是成功

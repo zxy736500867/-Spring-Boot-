@@ -127,6 +127,17 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * 查询用户的入职日期
+     * @param userId
+     * @return
+     */
+    @Override
+    public String findHiredateByUserId(Integer userId) {
+        String hireDate = userDao.findHiredateByUserId(userId);
+        return hireDate;
+    }
+
     @Override
     public Integer login(String code) {
 

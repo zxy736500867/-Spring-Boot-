@@ -255,6 +255,7 @@ public class CheckinServiceImpl implements CheckinService {
                 checkinEntity.setCountry(country);
                 checkinEntity.setProvince(province);
                 checkinEntity.setCity(city);
+                checkinEntity.setRisk(risk);
                 checkinEntity.setDistrict(district);
                 checkinEntity.setStatus(status);
                 checkinEntity.setDate(DateUtil.parse(DateUtil.today()));
@@ -275,6 +276,7 @@ public class CheckinServiceImpl implements CheckinService {
      */
     @Override
     public HashMap findTodayCheckinByUserId(Integer userId) {
+        log.info("查询当天签到情况");
         HashMap map = checkinDao.findTodayCheckinByUserId(userId);
         return map;
     }
@@ -298,9 +300,9 @@ public class CheckinServiceImpl implements CheckinService {
      * @return
      */
     @Override
-    public ArrayList<HashMap> findWeekCheckinByUserId(HashMap param) {
+    public ArrayList<HashMap> findWeekCheckinByParam(HashMap param) {
         //获取到本周的考勤情况：包括特殊节假日和特殊工作日
-        ArrayList<HashMap> checkinWeekList = checkinDao.findWeekCheckinByUserId(param);
+        ArrayList<HashMap> checkinWeekList = checkinDao.findWeekCheckinByParam(param);
         ArrayList<String> holidaysList = holidaysDao.findHolidaysInRange(param);
         ArrayList<String> workdayList = workdayDao.findWorkdaysInRange(param);
 
@@ -309,6 +311,7 @@ public class CheckinServiceImpl implements CheckinService {
         DateTime endDate = DateUtil.parseDate(param.get("endDate").toString());
         DateRange range = DateUtil.range(startDate, endDate, DateField.DAY_OF_MONTH);
 
+        ArrayList<HashMap> list = new ArrayList<>();
         //对本周考勤对象做循环判断是否是工作日还是节假日
         range.forEach(item -> {
             //type:判断是否是工作日，默认是的
@@ -327,19 +330,34 @@ public class CheckinServiceImpl implements CheckinService {
 
             // 对当天考勤记录的状态进行判断： status: 当天考勤记录
             if (type.equals("工作日") && DateUtil.compare(item, DateUtil.date()) <= 0) {
+                Boolean flag=false;
                 status = "缺勤";
                 for (HashMap<String, String> map : checkinWeekList) {
                     if (map.containsValue(date)) {
                         status = map.get("status");
+                        flag=true;
                         break;
                     }
                 }
+
+                //如果当天考勤时间还没有结束，则将当天考勤状态status置为空
+                //当天考勤结束时间
+                DateTime endTime = DateUtil.parse(DateUtil.today() + " " + systemConstants.attendanceEndTime);
+                String today = DateUtil.today();
+                //如果当前时间早于考勤结束时间  status = ""
+                if (date.equals(today) && DateUtil.date().isBefore(endTime) && flag == false) {
+                    status = "";
+                }
             }
+            HashMap map = new HashMap();
+            map.put("date", date);
+            map.put("status", status);
+            map.put("type", type);
+            map.put("day", item.dayOfWeekEnum().toChinese("周"));
+            list.add(map);
 
         });
-
-
-        return null;
+        return list;
     }
 
 
