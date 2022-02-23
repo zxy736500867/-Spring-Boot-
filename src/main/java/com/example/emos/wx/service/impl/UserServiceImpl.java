@@ -138,6 +138,17 @@ public class UserServiceImpl implements UserService {
         return hireDate;
     }
 
+    /**
+     * 查询用户姓名头像和部门
+     * @param userId
+     * @return
+     */
+    @Override
+    public HashMap findUserSummaryByUserId(Integer userId) {
+        HashMap map = userDao.findUserSummaryByUserId(userId);
+        return map;
+    }
+
     @Override
     public Integer login(String code) {
 

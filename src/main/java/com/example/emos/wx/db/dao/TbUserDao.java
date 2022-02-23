@@ -57,6 +57,13 @@ public interface TbUserDao {
      public String findHiredateByUserId(Integer userId);
 
     /**
+     * 查询用户姓名头像和部门
+     * @param userId
+     * @return
+     */
+     public HashMap findUserSummaryByUserId(Integer userId);
+
+    /**
      * 注册成为超级管理员
      * @param param 插入时所需的数据
      * @return 大于0，就是成功

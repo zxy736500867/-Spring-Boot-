@@ -10,12 +10,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -70,14 +68,21 @@ public class UserController {
 
     @PostMapping("/login")
     @ApiOperation("用户登录")
-    public R login(@Valid @RequestBody LoginForm form){
+    public R login(@Valid @RequestBody LoginForm form) {
         Integer userId = userService.login(form.getCode());
         String token = jwtUtil.createToken(userId);
         saveCacheToken(token, userId);
         Set<String> permissionSet = userService.findIdByUserPermissions(userId);
-        return R.success("登录成功").put("token", token).put("permissionSet",permissionSet);
+        return R.success("登录成功").put("token", token).put("permissionSet", permissionSet);
     }
 
+    @GetMapping("/searchUserSummary")
+    @ApiOperation("查询用户摘要信息")
+    public R searchUserSummary(@RequestHeader("token") String token) {
+        Integer userId = jwtUtil.getUserId(token);
+        HashMap map = userService.findUserSummaryByUserId(userId);
+        return R.success().put("result", map);
+    }
 
 
 }

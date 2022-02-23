@@ -2,6 +2,7 @@ package com.example.emos.wx.service;
 
 import com.example.emos.wx.db.pojo.TbUser;
 
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -42,6 +43,12 @@ public interface UserService {
      */
     public String findHiredateByUserId(Integer userId);
 
+    /**
+     * 查询用户姓名头像和部门
+     * @param userId
+     * @return
+     */
+    public HashMap findUserSummaryByUserId(Integer userId);
 
     /**
      * 登录查询

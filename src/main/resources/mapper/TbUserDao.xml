@@ -55,12 +55,21 @@
           AND u.status = 1
     </select>
 
-<!--    查询用户的入职日期-->
+    <!--    查询用户的入职日期-->
     <select id="findHiredateByUserId" parameterType="integer" resultType="string">
         SELECT hiredate
         FROM tb_user
         WHERE id = #{userId}
           AND status = 1
+    </select>
+
+    <!--    查询用户姓名头像和部门-->
+    <select id="findUserSummaryByUserId" parameterType="integer" resultType="hashmap">
+        SELECT u.name, u.photo, d.dept_name AS deptName
+        FROM tb_user AS u
+                 LEFT JOIN tb_dept AS d ON u.dept_id = d.id
+        WHERE u.id = #{userId}
+          AND u.status = 1
     </select>
 
     <!--  注册成为超级管理员  -->

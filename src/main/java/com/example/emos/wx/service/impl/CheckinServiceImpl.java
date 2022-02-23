@@ -360,5 +360,16 @@ public class CheckinServiceImpl implements CheckinService {
         return list;
     }
 
+    /**
+     * 查询月考勤情况
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public ArrayList<HashMap> findMonthCheckinByParam(HashMap param) {
+        return this.findWeekCheckinByParam(param);
+    }
+
 
 }

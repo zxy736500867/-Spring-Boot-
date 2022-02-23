@@ -53,4 +53,11 @@ public interface CheckinService {
      */
     public ArrayList<HashMap> findWeekCheckinByParam(HashMap param);
 
+    /**
+     * 查询月考勤信息
+     * @param param
+     * @return
+     */
+    public ArrayList<HashMap> findMonthCheckinByParam(HashMap param);
+
 }
