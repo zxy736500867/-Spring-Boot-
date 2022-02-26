@@ -1,8 +1,11 @@
 package com.example.emos.wx.service.impl;
 
+import com.example.emos.wx.db.dao.MessageDao;
+import com.example.emos.wx.db.dao.MessageRefDao;
 import com.example.emos.wx.db.pojo.MessageEntity;
 import com.example.emos.wx.db.pojo.MessageRefEntity;
 import com.example.emos.wx.service.MessageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -17,48 +20,63 @@ import java.util.List;
 @Service
 public class MessageServiceImpl implements MessageService {
 
+    @Autowired
+    private MessageDao messageDao;
+
+    @Autowired
+    private MessageRefDao messageRefDao;
+
     @Override
     public String insertMessageEntity(MessageEntity messageEntity) {
-        return null;
+        String id = messageDao.insertMessageEntity(messageEntity);
+        return id;
     }
 
     @Override
     public List<HashMap> findMessageByPage(Integer userId, Long start, Integer length) {
-        return null;
+        List<HashMap> list = messageDao.findMessageByPage(userId, start, length);
+        return list;
     }
 
     @Override
     public HashMap findMessageById(String id) {
-        return null;
+        HashMap map = messageDao.findMessageById(id);
+        return map;
     }
 
     @Override
     public String insertMessageRefEntity(MessageRefEntity messageRefEntity) {
-        return null;
+        String id = messageRefDao.insertMessageRefEntity(messageRefEntity);
+        return id;
     }
 
     @Override
     public Long findUnreadCountByUserId(Integer userId) {
-        return null;
+        Long count = messageRefDao.findUnreadCountByUserId(userId);
+        return count;
     }
 
     @Override
     public Long findLastCountByUserId(Integer userId) {
-        return null;
+        Long count = messageRefDao.findLastCountByUserId(userId);
+        return count;
     }
 
     @Override
     public Long updateUnreadMessageById(String id) {
-        return null;
+        Long rows = messageRefDao.updateUnreadMessageById(id);
+        return rows;
     }
 
     @Override
     public Long deleteMessageRefById(String id) {
-        return null;
+        Long rows = messageRefDao.deleteMessageRefById(id);
+        return rows;
     }
 
     @Override
     public Long deleteMessageRefByUserId(Integer userId) {
-        return null;
+        Long rows = messageRefDao.deleteMessageRefByUserId(userId);
+        return rows;
     }
 }

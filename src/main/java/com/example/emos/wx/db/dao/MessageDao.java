@@ -33,7 +33,7 @@ public class MessageDao {
      * 插入消息数据
      *
      * @param messageEntity
-     * @return
+     * @return 主键id
      */
     public String insertMessageEntity(MessageEntity messageEntity) {
         //在mongoDB中的时间为格林尼治时间，转换为北京时间
