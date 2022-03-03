@@ -55,7 +55,7 @@ public class MessageDao {
 
         //先将message集合中的id转字符串：方便连接表（集合）
         JSONObject json = new JSONObject();
-        json.set("$toString", "_id");
+        json.set("$toString", "$_id");
 
         //使用Java中对mongodb进行表（集合）连接
         //创建连接对象，并初始化连接表信息

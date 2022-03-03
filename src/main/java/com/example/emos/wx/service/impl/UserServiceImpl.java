@@ -1,13 +1,16 @@
 package com.example.emos.wx.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.emos.wx.config.shiro.OAuth2Filter;
 import com.example.emos.wx.db.dao.TbUserDao;
+import com.example.emos.wx.db.pojo.MessageEntity;
 import com.example.emos.wx.db.pojo.TbUser;
 import com.example.emos.wx.exception.EmosException;
 import com.example.emos.wx.service.UserService;
+import com.example.emos.wx.task.MessageTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private TbUserDao userDao;
+
+    @Autowired
+    private MessageTask messageTask;
 
     /**
      * 获取临时登录凭证
@@ -90,6 +96,14 @@ public class UserServiceImpl implements UserService {
                 param.put("root", true);
                 userDao.insertRootUser(param);
                 Integer userId = userDao.findIdByOpenId(openId);
+                // 注册成功后，发送系统消息
+                MessageEntity messageEntity = new MessageEntity();
+                messageEntity.setSenderId(0);
+                messageEntity.setSenderName("系统信息");
+                messageEntity.setUuid(IdUtil.simpleUUID());
+                messageEntity.setMsg("欢迎您注册成为超级管理员，请及时更新您的员工个人信息。");
+                messageEntity.setSendTime(new Date());
+                messageTask.sendAsync(userId + "", messageEntity);
                 return userId;
             }
             //已经存在了管理员了
@@ -157,7 +171,8 @@ public class UserServiceImpl implements UserService {
         if (userId==null){
             throw new EmosException("员工用户不存在");
         }
-        //TODO 从消息队列中接收消息，转移到消息表
+        // 从消息队列中接收消息，转移到消息表
+//        messageTask.receiveAsync(userId + "");
         return userId;
     }
 }
