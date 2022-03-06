@@ -5,6 +5,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.emos.wx.config.shiro.OAuth2Filter;
+import com.example.emos.wx.db.dao.TbDeptDao;
 import com.example.emos.wx.db.dao.TbUserDao;
 import com.example.emos.wx.db.pojo.MessageEntity;
 import com.example.emos.wx.db.pojo.TbUser;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
@@ -45,6 +48,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private MessageTask messageTask;
+
+    @Autowired
+    private TbDeptDao deptDao;
 
     /**
      * 获取临时登录凭证
@@ -113,10 +119,29 @@ public class UserServiceImpl implements UserService {
         }
         //TODO 普通用户注册
         else {
+            String openId = getOpenId(code);
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("openId", openId);
+            param.put("nickname", nickname);
+            param.put("photo", photo);
+            param.put("role", "[0]");
+            param.put("status", 1);
+            param.put("createTime", new Date());
+            param.put("root", true);
+            userDao.insertRootUser(param);
+            Integer userId = userDao.findIdByOpenId(openId);
+            // 注册成功后，发送系统消息
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setSenderId(0);
+            messageEntity.setSenderName("系统信息");
+            messageEntity.setUuid(IdUtil.simpleUUID());
+            messageEntity.setMsg("欢迎您注册成为emos员工，请及时更新您的员工个人信息。");
+            messageEntity.setSendTime(new Date());
+            messageTask.sendAsync(userId + "", messageEntity);
+            return userId;
 
         }
 
-        return null;
     }
 
     /**
@@ -161,6 +186,38 @@ public class UserServiceImpl implements UserService {
     public HashMap findUserSummaryByUserId(Integer userId) {
         HashMap map = userDao.findUserSummaryByUserId(userId);
         return map;
+    }
+
+    /**
+     * 将员工归档到部门列表下
+     * @param keyword
+     * @return
+     */
+    @Override
+    public ArrayList<HashMap> findUserGroupByDept(String keyword) {
+
+        //部门列表
+        ArrayList<HashMap> deptMembers = deptDao.findDeptMembers(keyword);
+        //员工列表
+        ArrayList<HashMap> userGroupByDept = userDao.findUserGroupByDept(keyword);
+
+        //遍历部门列表
+        for (HashMap deptItem : deptMembers) {
+            long deptId = (Long) deptItem.get("id");
+            ArrayList members = new ArrayList();
+
+            //遍历员工列表
+            for (HashMap userItem : userGroupByDept) {
+                long udId = (Long) userItem.get("deptId");
+                if (deptId==udId) {
+                    members.add(userItem);
+                }
+            }
+            //向部门添加员工
+            deptItem.put("members", members);
+        }
+
+        return deptMembers;
     }
 
     @Override

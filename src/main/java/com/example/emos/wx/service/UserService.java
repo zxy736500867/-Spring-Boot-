@@ -2,6 +2,7 @@ package com.example.emos.wx.service;
 
 import com.example.emos.wx.db.pojo.TbUser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -49,6 +50,13 @@ public interface UserService {
      * @return
      */
     public HashMap findUserSummaryByUserId(Integer userId);
+
+    /**
+     * 查询用户所在部门
+     * @param keyword
+     * @return
+     */
+    public ArrayList<HashMap> findUserGroupByDept(String keyword);
 
     /**
      * 登录查询

@@ -72,6 +72,21 @@
           AND u.status = 1
     </select>
 
+    <!--    查询用户所在部门-->
+    <select id="findUserGroupByDept" parameterType="string" resultType="hashmap">
+        SELECT
+        d.id AS deptId,
+        d.dept_name AS deptName,
+        u.id AS userId,
+        u.name
+        FROM tb_dept AS d JOIN tb_user AS u ON u.dept_id=d.id
+        WHERE u.status=1
+        <if test="keyword!=null">
+            AND u.name LIKE '%${keyword}%'
+        </if>
+        ORDER BY d.id,u.id;
+    </select>
+
     <!--  注册成为超级管理员  -->
     <insert id="insertRootUser" parameterType="hashmap">
         INSERT INTO tb_user

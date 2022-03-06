@@ -3,6 +3,7 @@ package com.example.emos.wx.db.dao;
 import com.example.emos.wx.db.pojo.TbUser;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,14 @@ public interface TbUserDao {
      * @return
      */
      public HashMap findUserSummaryByUserId(Integer userId);
+
+
+    /**
+     * 查询用户所在部门
+     * @param keyword
+     * @return
+     */
+    public ArrayList<HashMap> findUserGroupByDept(String keyword);
 
     /**
      * 注册成为超级管理员
