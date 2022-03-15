@@ -34,7 +34,7 @@ public class SystemConstants {
     public String closingStartTime;
 
     /**
-     *下班考勤截止时间
+     * 下班考勤截止时间
      */
     public String closingEndTime;
 

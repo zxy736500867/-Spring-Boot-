@@ -1,11 +1,13 @@
 package com.example.emos.wx.db.pojo;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
 /**
  * tb_face_model
- * @author 
+ *
+ * @author
  */
 @Data
 public class TbFaceModel implements Serializable {

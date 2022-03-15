@@ -46,6 +46,7 @@ public class MessageDao {
 
     /**
      * 根据用户和分页信息查找message和message_ref 的数据
+     *
      * @param userId
      * @param start
      * @param length
@@ -102,6 +103,7 @@ public class MessageDao {
 
     /**
      * 根据message集合的id，查询集合信息
+     *
      * @param id
      * @return
      */

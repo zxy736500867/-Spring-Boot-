@@ -17,11 +17,11 @@ import javax.validation.constraints.NotNull;
 public class SearchMonthCheckinForm {
 
     @NotNull
-    @Range(min = 2000,max = 3000)
+    @Range(min = 2000, max = 3000)
     private Integer year;
 
     @NotNull
-    @Range(min=1,max=12)
+    @Range(min = 1, max = 12)
     private Integer month;
 
 }

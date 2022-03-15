@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -162,7 +163,7 @@ public class BaiduApiServiceImpl implements BaiduApiService {
     @Override
     public Map<String, Object> searchFace(Integer userId, String filePath) {
         log.info("向百度api发送对比人脸模型请求，携带图片信息");
-        String accessToken= getBaiduToken(apiKey, securetKey);
+        String accessToken = getBaiduToken(apiKey, securetKey);
 
         // 请求url
         String url = searchUrl;

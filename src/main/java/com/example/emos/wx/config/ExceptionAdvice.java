@@ -38,7 +38,7 @@ public class ExceptionAdvice {
         }
         //3. 授权异常
         else if (e instanceof UnauthenticatedException) {
-            return "您的权限不匹配";
+            return "您不具备相关权限";
         }
         //4.普通异常
         else {

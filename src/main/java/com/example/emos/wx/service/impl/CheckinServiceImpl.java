@@ -330,12 +330,12 @@ public class CheckinServiceImpl implements CheckinService {
 
             // 对当天考勤记录的状态进行判断： status: 当天考勤记录
             if (type.equals("工作日") && DateUtil.compare(item, DateUtil.date()) <= 0) {
-                Boolean flag=false;
+                Boolean flag = false;
                 status = "缺勤";
                 for (HashMap<String, String> map : checkinWeekList) {
                     if (map.containsValue(date)) {
                         status = map.get("status");
-                        flag=true;
+                        flag = true;
                         break;
                     }
                 }

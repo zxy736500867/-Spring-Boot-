@@ -12,7 +12,7 @@
     <insert id="insertAll" parameterType="com.example.emos.wx.db.pojo.TbFaceModel">
         INSERT INTO tb_face_model
         SET user_id=#{userId},
-            face_model=#{faceModel}
+        face_model=#{faceModel}
     </insert>
 
     <!--    删除人脸信息，管理员删除离职人员-->

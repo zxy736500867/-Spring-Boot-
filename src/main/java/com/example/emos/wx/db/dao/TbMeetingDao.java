@@ -14,6 +14,7 @@ public interface TbMeetingDao {
 
     /**
      * 查询会议分页信息
+     *
      * @param paras
      * @return
      */
@@ -22,11 +23,11 @@ public interface TbMeetingDao {
 
     /**
      * 添加会议bean信息
+     *
      * @param entity
      * @return
      */
     public Integer insertMeeting(TbMeeting entity);
-
 
 
 }

@@ -20,6 +20,7 @@ public interface TbCheckinDao {
 
     /**
      * 查询当天签到情况
+     *
      * @param userId
      * @return
      */
@@ -27,6 +28,7 @@ public interface TbCheckinDao {
 
     /**
      * 查询总考勤天数
+     *
      * @param userId
      * @return
      */
@@ -34,6 +36,7 @@ public interface TbCheckinDao {
 
     /**
      * 查询本周考勤情况
+     *
      * @param param
      * @return
      */
@@ -41,6 +44,7 @@ public interface TbCheckinDao {
 
     /**
      * 添加签到信息
+     *
      * @param tbCheckin
      */
     public void insertAll(TbCheckin tbCheckin);

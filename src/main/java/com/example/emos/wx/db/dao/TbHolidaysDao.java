@@ -14,12 +14,14 @@ public interface TbHolidaysDao {
 
     /**
      * 是否是特殊的节假日
+     *
      * @return 1：是 ，null：不是
      */
     public Integer findTodayIsHolidays();
 
     /**
      * 查询本周有没有特殊的节假日
+     *
      * @param param
      * @return
      */

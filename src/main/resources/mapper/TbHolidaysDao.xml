@@ -13,7 +13,7 @@
         SELECT date
         FROM tb_holidays
         WHERE date BETWEEN #{startDate}
-          AND #{endDate}
+        AND #{endDate}
     </select>
 
 </mapper>

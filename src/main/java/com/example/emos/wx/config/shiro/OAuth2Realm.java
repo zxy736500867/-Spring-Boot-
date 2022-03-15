@@ -44,13 +44,13 @@ public class OAuth2Realm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
 
-        String token= (String) authenticationToken.getPrincipal();
+        String token = (String) authenticationToken.getPrincipal();
         Integer userId = jwtUtil.getUserId(token);
         TbUser user = userService.findAllByUserId(userId);
-        if (user==null){
+        if (user == null) {
             return (AuthenticationInfo) new LockedAccountException("账号异常，请及时联系管理员");
         }
-        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user,token,getName());
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, token, getName());
         return info;
     }
 

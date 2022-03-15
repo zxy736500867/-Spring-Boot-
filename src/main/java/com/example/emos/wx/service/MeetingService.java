@@ -13,6 +13,7 @@ public interface MeetingService {
 
     /**
      * 查询会议分页信息
+     *
      * @param paras
      * @return
      */
@@ -20,6 +21,7 @@ public interface MeetingService {
 
     /**
      * 添加会议bean信息
+     *
      * @param tbMeeting
      */
     public void insertMeeting(TbMeeting tbMeeting);

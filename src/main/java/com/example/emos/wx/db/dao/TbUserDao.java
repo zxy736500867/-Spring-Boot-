@@ -3,10 +3,7 @@ package com.example.emos.wx.db.dao;
 import com.example.emos.wx.db.pojo.TbUser;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Administrator
@@ -23,6 +20,7 @@ public interface TbUserDao {
 
     /**
      * 根据openId查询用户ID
+     *
      * @param openId
      * @return 大于0，就是成功
      */
@@ -30,6 +28,7 @@ public interface TbUserDao {
 
     /**
      * 根据userId，查询用户的权限
+     *
      * @param userId
      * @return
      */
@@ -38,42 +37,79 @@ public interface TbUserDao {
 
     /**
      * 根据userId，查询用户信息
+     *
      * @param userId
      * @return TbUser
      */
-     public TbUser findAllByUserId(Integer userId);
+    public TbUser findAllByUserId(Integer userId);
 
     /**
      * 根据用户id查询姓名和部门名
+     *
      * @param userId
      * @return
      */
-     public HashMap<String,String> findNameAndDeptByUserId(Integer userId);
+    public HashMap<String, String> findNameAndDeptByUserId(Integer userId);
 
     /**
      * 查询用户的入职日期
+     *
      * @param userId
      * @return
      */
-     public String findHiredateByUserId(Integer userId);
+    public String findHiredateByUserId(Integer userId);
 
     /**
      * 查询用户姓名头像和部门
+     *
      * @param userId
      * @return
      */
-     public HashMap findUserSummaryByUserId(Integer userId);
+    public HashMap findUserSummaryByUserId(Integer userId);
 
 
     /**
      * 查询用户所在部门
+     *
      * @param keyword
      * @return
      */
     public ArrayList<HashMap> findUserGroupByDept(String keyword);
 
     /**
+     * 查询列表中员工信息
+     *
+     * @param param
+     * @return
+     */
+    public ArrayList<HashMap> findMembers(List param);
+
+    /**
+     * 查询员工所以信息
+     *
+     * @param userId
+     * @return
+     */
+    public HashMap findUserInfo(Integer userId);
+
+    /**
+     * 查询部门经理id
+     *
+     * @param id
+     * @return
+     */
+    public Integer findDeptManagerId(Integer id);
+
+    /**
+     * 查询总经理id
+     *
+     * @return
+     */
+    public Integer findGmId();
+
+    /**
      * 注册成为超级管理员
+     *
      * @param param 插入时所需的数据
      * @return 大于0，就是成功
      */

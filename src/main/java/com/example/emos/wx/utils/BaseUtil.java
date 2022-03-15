@@ -18,6 +18,7 @@ public class BaseUtil {
 
     /**
      * 文件转base64
+     *
      * @param filePath 文件地址
      * @return
      */
@@ -37,7 +38,8 @@ public class BaseUtil {
 
     /**
      * base64转文件
-     * @param base64 base64
+     *
+     * @param base64   base64
      * @param filePath 生成后的文件地址
      * @return
      */

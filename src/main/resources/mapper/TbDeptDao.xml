@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.emos.wx.db.dao.TbDeptDao">
 
-<!--    查询部门员工集合-->
+    <!--    查询部门员工集合-->
     <select id="findDeptMembers" parameterType="string" resultType="hashmap">
         SELECT
         d.id,

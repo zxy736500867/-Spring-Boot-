@@ -1,11 +1,13 @@
 package com.example.emos.wx.db.pojo;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
 /**
  * sys_config
- * @author 
+ *
+ * @author
  */
 @Data
 public class SysConfig implements Serializable {

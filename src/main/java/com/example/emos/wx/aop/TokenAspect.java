@@ -31,7 +31,7 @@ public class TokenAspect {
 
         R r = (R) point.proceed();
         String token = threadLocalToken.getToken();
-        if (token!= null) {
+        if (token != null) {
             r.put("token", token);
             threadLocalToken.clear();
         }

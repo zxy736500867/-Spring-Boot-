@@ -6,33 +6,33 @@
         SELECT id
         FROM tb_checkin
         WHERE user_id = #{userId}
-          AND date = CURRENT_DATE
-          AND create_time BETWEEN #{start}
-          AND #{end} LIMIT 1;
+        AND date = CURRENT_DATE
+        AND create_time BETWEEN #{start}
+        AND #{end} LIMIT 1;
     </select>
 
     <!--    查询当天签到情况-->
     <select id="findTodayCheckinByUserId" parameterType="integer" resultType="hashmap">
         SELECT u.name,
-               u.photo,
-               d.dept_name                          AS deptName,
-               ck.address,
-               CASE
-                   WHEN ck.status = 1 THEN '正常'
-                   WHEN ck.status = 2 THEN '迟到'
-                   END                              AS status,
-               CASE
-                   WHEN ck.risk = 1 THEN '低风险'
-                   WHEN ck.risk = 2 THEN '中风险'
-                   WHEN ck.risk = 3 THEN '高风险'
-                   END                              AS risk,
-               DATE_FORMAT(ck.create_time, "%H:%i") AS checkinTime,
-               ck.date
+        u.photo,
+        d.dept_name AS deptName,
+        ck.address,
+        CASE
+        WHEN ck.status = 1 THEN '正常'
+        WHEN ck.status = 2 THEN '迟到'
+        END AS status,
+        CASE
+        WHEN ck.risk = 1 THEN '低风险'
+        WHEN ck.risk = 2 THEN '中风险'
+        WHEN ck.risk = 3 THEN '高风险'
+        END AS risk,
+        DATE_FORMAT(ck.create_time, "%H:%i") AS checkinTime,
+        ck.date
         FROM tb_user AS u
-                 LEFT JOIN tb_dept AS d ON u.dept_id = d.id
-                 LEFT JOIN tb_checkin AS ck ON u.id = ck.user_id AND ck.date = CURRENT_DATE
+        LEFT JOIN tb_dept AS d ON u.dept_id = d.id
+        LEFT JOIN tb_checkin AS ck ON u.id = ck.user_id AND ck.date = CURRENT_DATE
         WHERE u.id = #{userId}
-          AND u.status = 1
+        AND u.status = 1
 
     </select>
 
@@ -49,8 +49,8 @@
         IF(status=1,"正常","迟到") AS status
         FROM tb_checkin
         WHERE user_id=#{userId}
-          AND date BETWEEN #{startDate}
-          AND #{endDate}
+        AND date BETWEEN #{startDate}
+        AND #{endDate}
     </select>
 
     <!--    添加签到信息-->

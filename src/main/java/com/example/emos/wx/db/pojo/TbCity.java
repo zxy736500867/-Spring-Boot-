@@ -1,11 +1,13 @@
 package com.example.emos.wx.db.pojo;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
 /**
  * tb_city
- * @author 
+ *
+ * @author
  */
 @Data
 public class TbCity implements Serializable {

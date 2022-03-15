@@ -2,11 +2,13 @@ package com.example.emos.wx.db.pojo;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * tb_meeting
- * @author 
+ *
+ * @author
  */
 @Data
 public class TbMeeting implements Serializable {

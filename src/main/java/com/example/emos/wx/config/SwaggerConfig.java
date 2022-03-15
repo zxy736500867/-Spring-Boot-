@@ -30,11 +30,10 @@ import java.util.List;
 public class SwaggerConfig {
 
     /**
-     *
      * @return
      */
     @Bean
-    public Docket creatRestApi(){
+    public Docket creatRestApi() {
         //1.创建容器
         Docket docket = new Docket(DocumentationType.SWAGGER_2);
         ApiInfoBuilder builder = new ApiInfoBuilder();
@@ -51,7 +50,7 @@ public class SwaggerConfig {
         //6.只有在方法上面加入@ApiOperation注解才能生效
         selectorBuilder.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class));
         //7.重写加入到容器中
-        docket=selectorBuilder.build();
+        docket = selectorBuilder.build();
 
         //8.将JWT加入到Swagger中
         ApiKey apiKey = new ApiKey("token", "token", "header");
@@ -62,7 +61,7 @@ public class SwaggerConfig {
         //9.设置令牌的作用域
         AuthorizationScope scope = new AuthorizationScope("global", "设置全局作用域");
         //10.下面都是将其封装到容器方法中，有一说一Swagger2整合的真垃圾
-        AuthorizationScope[] scopes={scope};
+        AuthorizationScope[] scopes = {scope};
         SecurityReference reference = new SecurityReference("token", scopes);
         List refList = new ArrayList<>();
         refList.add(reference);

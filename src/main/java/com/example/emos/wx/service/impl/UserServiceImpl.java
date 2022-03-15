@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Program: emos-wx-api
@@ -54,11 +51,12 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 获取临时登录凭证
+     *
      * @param code
      * @return
      */
     private String getOpenId(String code) {
-        log.info("code====="+code);
+        log.info("code=====" + code);
 
         String url = "https://api.weixin.qq.com/sns/jscode2session";
 
@@ -69,7 +67,7 @@ public class UserServiceImpl implements UserService {
         map.put("grant_type", "authorization_code");
         String response = HttpUtil.post(url, map);
         JSONObject json = JSONUtil.parseObj(response);
-        log.info("json====="+json);
+        log.info("json=====" + json);
         String openId = json.getStr("openid");
         if (openId == null || openId.length() == 0) {
             throw new RuntimeException("临时登录凭证错误");
@@ -79,10 +77,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 注册用户
-     * @param invitationCode  注册时的邀请码
-     * @param code            临时授权字符串
-     * @param nickname        微信昵称
-     * @param photo           微信头像的url地址
+     *
+     * @param invitationCode 注册时的邀请码
+     * @param code           临时授权字符串
+     * @param nickname       微信昵称
+     * @param photo          微信头像的url地址
      * @return userId         用户ID
      */
     @Override
@@ -146,6 +145,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 根据userId，查询用户的权限
+     *
      * @param userId
      * @return 权限信息
      */
@@ -157,6 +157,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 根据userId，查询用户信息
+     *
      * @param userId
      * @return TbUser
      */
@@ -168,6 +169,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 查询用户的入职日期
+     *
      * @param userId
      * @return
      */
@@ -179,6 +181,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 查询用户姓名头像和部门
+     *
      * @param userId
      * @return
      */
@@ -190,6 +193,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 将员工归档到部门列表下
+     *
      * @param keyword
      * @return
      */
@@ -209,7 +213,7 @@ public class UserServiceImpl implements UserService {
             //遍历员工列表
             for (HashMap userItem : userGroupByDept) {
                 long udId = (Long) userItem.get("deptId");
-                if (deptId==udId) {
+                if (deptId == udId) {
                     members.add(userItem);
                 }
             }
@@ -221,11 +225,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ArrayList<HashMap> findMembers(List param) {
+        ArrayList<HashMap> list = userDao.findMembers(param);
+        return list;
+    }
+
+    @Override
     public Integer login(String code) {
 
         String openId = getOpenId(code);
         Integer userId = userDao.findIdByOpenId(openId);
-        if (userId==null){
+        if (userId == null) {
             throw new EmosException("员工用户不存在");
         }
         // 从消息队列中接收消息，转移到消息表

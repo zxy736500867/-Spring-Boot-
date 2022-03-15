@@ -5,9 +5,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
+
 /**
  * @Program: emos-wx-api
- * @Description:  Json工具类.
+ * @Description: Json工具类.
  * @Author: 张鑫宇
  * @Create: 2022-01-27 13:34
  **/

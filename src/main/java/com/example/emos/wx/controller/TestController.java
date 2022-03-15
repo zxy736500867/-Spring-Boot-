@@ -28,8 +28,8 @@ import java.nio.file.Paths;
 public class TestController {
     @PostMapping("/sayHello")
     @ApiOperation("最简单的测试方法了")
-    public R sayHello(@Valid @RequestBody TestSayHelloForm form){
-        return R.success().put("msg", "Swagger第一个测试接口成功！！！"+form.getName());
+    public R sayHello(@Valid @RequestBody TestSayHelloForm form) {
+        return R.success().put("msg", "Swagger第一个测试接口成功！！！" + form.getName());
     }
 
 }
