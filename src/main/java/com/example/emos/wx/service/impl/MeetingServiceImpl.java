@@ -1,5 +1,8 @@
 package com.example.emos.wx.service.impl;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONArray;
 import com.example.emos.wx.db.dao.TbMeetingDao;
 import com.example.emos.wx.db.pojo.TbMeeting;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @Program: emos-wx-api
@@ -54,13 +58,52 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    public HashMap findMeetingById(Integer id) {
+        HashMap map = meetingDao.findMeetingById(id);
+        ArrayList<HashMap> list = meetingDao.findMeetingMembers(id);
+        map.put("members", list);
+        return map;
+    }
+
+    @Override
+    public List<String> findUserMeetingInMonth(HashMap param) {
+        List<String> list = meetingDao.findUserMeetingInMonth(param);
+        return list;
+    }
+
+    @Override
     public void insertMeeting(TbMeeting tbMeeting) {
         Integer row = meetingDao.insertMeeting(tbMeeting);
         if (row != 1) {
             throw new EmosException("会议添加失败");
         }
-
         //TODO 开启审批工作流
+    }
+
+    @Override
+    public void updateMeetingInfo(HashMap params) {
+        Integer row = meetingDao.updateMeetingInfo(params);
+        if (row != 1) {
+            throw new EmosException("会议更新失败");
+        }
+    }
+
+    @Override
+    public void deleteMeetingById(Integer id) {
+        HashMap meeting = meetingDao.findMeetingById(id);
+        //会议开始时间
+        DateTime startTime = DateUtil.parse(meeting.get("date") + " " + meeting.get("start"));
+        //当前系统时间
+        DateTime now = DateUtil.date();
+
+        if (now.isAfterOrEquals(startTime.offset(DateField.MINUTE, -10))) {
+            throw new EmosException("距离会议开始不足10分钟，不能取消本次会议");
+        }
+
+        Integer row = meetingDao.deleteMeetingById(id);
+        if (row != 1) {
+            throw new EmosException("会议删除失败");
+        }
 
     }
 }
