@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @RestController
 @RequestMapping("/user")
+@CrossOrigin
 @Api("用户模块web接口")
 public class UserController {
 

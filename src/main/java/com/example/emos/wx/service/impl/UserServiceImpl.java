@@ -1,5 +1,6 @@
 package com.example.emos.wx.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -123,10 +124,11 @@ public class UserServiceImpl implements UserService {
             param.put("openId", openId);
             param.put("nickname", nickname);
             param.put("photo", photo);
-            param.put("role", "[0]");
+            param.put("role", "[3]");
             param.put("status", 1);
             param.put("createTime", new Date());
-            param.put("root", true);
+            param.put("root", false);
+            param.put("hiredate", DateUtil.today());
             userDao.insertRootUser(param);
             Integer userId = userDao.findIdByOpenId(openId);
             // 注册成功后，发送系统消息
@@ -138,7 +140,6 @@ public class UserServiceImpl implements UserService {
             messageEntity.setSendTime(new Date());
             messageTask.sendAsync(userId + "", messageEntity);
             return userId;
-
         }
 
     }
