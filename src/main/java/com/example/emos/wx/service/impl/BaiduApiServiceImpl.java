@@ -110,10 +110,8 @@ public class BaiduApiServiceImpl implements BaiduApiService {
         String accessToken = getBaiduToken(apiKey, securetKey);
         // 请求url
         String url = addUrl;
-
         // 照片转义成base64编码
         String image = BaseUtil.encryptToBase64(filePath);
-
         // 封装请求体的数据--》map
         Map<String, Object> map = new HashMap<>();
         map.put("image", image);
@@ -124,7 +122,6 @@ public class BaiduApiServiceImpl implements BaiduApiService {
         map.put("image_type", "BASE64");
         map.put("quality_control", "NORMAL");
         String param = GsonUtils.toJson(map);
-
         String response = null;
         try {
             response = HttpUtil.post(url, accessToken, "application/json", param);

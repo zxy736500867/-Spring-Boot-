@@ -103,7 +103,6 @@ public class CheckinServiceImpl implements CheckinService {
         if (DateUtil.date().isWeekend()) {
             type = "节假日";
         }
-
         if (isHoliday) {
             type = "节假日";
         }
@@ -222,7 +221,7 @@ public class CheckinServiceImpl implements CheckinService {
 //                            riskText="高风险";
                             if ("高风险".equals(riskText)) {
                                 risk = 3;
-                                //TODO 发送告警邮件
+                                // 发送告警邮件
                                 HashMap<String, String> map = userDao.findNameAndDeptByUserId(userId);
                                 String name = map.get("name");
                                 String deptName = map.get("dept_name");
